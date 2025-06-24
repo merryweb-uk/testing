@@ -81,7 +81,10 @@
         material.diffuseTexture = new BABYLON.Texture("./2k_mars.jpg", scene);
 
     // Assign the material to the sphere
-        sphere.material = material; 
+        sphere.material = material;
+            
+    // Create a SkyBox containing Milky Way
+        photoDome = new BABYLON.PhotoDome("milkyway", "./eso0932a.jpg", {}, scene);
             
     return scene;
 };
