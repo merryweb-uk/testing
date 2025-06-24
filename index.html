@@ -65,27 +65,23 @@
         var createDefaultEngine = function() { return new BABYLON.Engine(canvas, true, { preserveDrawingBuffer: true, stencil: true,  disableWebGL2Support: false}); };
         var createScene = function () {
     // This creates a basic Babylon Scene object (non-mesh)
-    var scene = new BABYLON.Scene(engine);
+        var scene = new BABYLON.Scene(engine);
 
-    var camera = new BABYLON.ArcRotateCamera("camera", Math.PI / 2, Math.PI / 4, 5, BABYLON.Vector3.Zero(), scene);
-    camera.attachControl(canvas, true);
-    var light = new BABYLON.HemisphericLight("light", new BABYLON.Vector3(1, 1, 0), scene);
+        var camera = new BABYLON.ArcRotateCamera("camera", Math.PI / 2, Math.PI / 4, 5, BABYLON.Vector3.Zero(), scene);
+        camera.attachControl(canvas, true);
+        var light = new BABYLON.HemisphericLight("light", new BABYLON.Vector3(1, 1, 0), scene);
 
     // Create the sphere
-    var sphere = BABYLON.MeshBuilder.CreateSphere("sphere", {diameter: 2}, scene);
+        var sphere = BABYLON.MeshBuilder.CreateSphere("sphere", {diameter: 2}, scene);
 
     // Create a material
-    var material = new BABYLON.StandardMaterial("sphereMaterial", scene);
+       var material = new BABYLON.StandardMaterial("sphereMaterial", scene);
 
     // Create the texture from a JPG image (use your own image URL or path)
-    material.diffuseTexture = new BABYLON.Texture("./2k_mars.jpg", scene);
+        material.diffuseTexture = new BABYLON.Texture("./2k_mars.jpg", scene);
 
     // Assign the material to the sphere
-    sphere.material = material; 
-
-    return scene;
-
-};
+        sphere.material = material; 
             
     return scene;
 };
