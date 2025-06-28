@@ -63,25 +63,79 @@
         var scene = null;
         var sceneToRender = null;
         var createDefaultEngine = function() { return new BABYLON.Engine(canvas, true, { preserveDrawingBuffer: true, stencil: true,  disableWebGL2Support: false}); };
+
         var createScene = function () {
-    // This creates a basic Babylon Scene object (non-mesh)
-        var scene = new BABYLON.Scene(engine);
 
-        var camera = new BABYLON.ArcRotateCamera("camera", Math.PI / 2, Math.PI / 4, 5, BABYLON.Vector3.Zero(), scene);
+        // Get canvas and initialize Babylon engine and scene
+        //const canvas = document.getElementById("renderCanvas"); // Make sure your HTML has a canvas with this id
+        //const engine = new BABYLON.Engine(canvas, true);
+        const scene = new BABYLON.Scene(engine);
+
+        // Create a basic camera and point it at the origin
+        const camera = new BABYLON.ArcRotateCamera("camera", Math.PI / 2, Math.PI / 3, 20, BABYLON.Vector3.Zero(), scene);
         camera.attachControl(canvas, true);
-        var light = new BABYLON.HemisphericLight("light", new BABYLON.Vector3(1, 1, 0), scene);
+        
+        // Add a simple light
+        const light = new BABYLON.HemisphericLight("light", new BABYLON.Vector3(0, 1, 1), scene);
+        
+        // Create the central (large) sphere
+        const sun = BABYLON.MeshBuilder.CreateSphere("sun", {diameter: 4}, scene);
+        sun.position = BABYLON.Vector3.Zero();
+        
+        // Create Materials
+        const sun_material = new BABYLON.StandardMaterial("spherematerial", scene);
+        sun_material.diffuseTexture = new BABYLON.Texture("C:\Users\chris\Downloads\2k_sun.jpg", scene);
+        sun.material = sun_material;
+        
+        // Parameters for orbiting spheres
+        const numSpheres = 8;
+        const orbitRadius = [3.9,7.2,10,15.2,52,95.4,192.2,300.6];
+        const orbitalperiod = [88,225,365.25,687,4331.9,10760.3,30681,60266.25]
+        const rotationperiod = [58.63,-243,1,0.98,0.41,0.45,0.72,0.67]
+        const smallSphereDiameter = 1;
+        const spheres = [];
+        const planet_material = [];
+        const factor = 150;           // Adjust speed here
+        
+        // Create small spheres
+        for (let i = 0; i < numSpheres; i++) {
+            const angle = (2 * Math.PI * i) / numSpheres; // Evenly spaced angles
+            const x = orbitRadius[i] * Math.cos(angle);
+            const z = orbitRadius[i] * Math.sin(angle);
+            const sphere = BABYLON.MeshBuilder.CreateSphere("sphere" + i, {diameter: smallSphereDiameter}, scene);
+            planet_material[i] = new BABYLON.StandardMaterial("spherematerial", scene);
+            planet_material[i].diffuseTexture = new BABYLON.Texture("C:\Users\chris\Downloads\2k_sun.jpg", scene);
+            sphere.material = planet_material[i];
+            sphere.position = new BABYLON.Vector3(x, 0, z);
+            spheres.push({mesh: sphere, angle: angle});
+        }
+        
+        // Animation loop: rotate the small spheres around the big sphere
+        scene.registerBeforeRender(function() {
+            const delta = engine.getDeltaTime() / factor;
+            for (let i = 0; i < spheres.length; i++) {
+                let s = spheres[i];
+                s.angle += delta / orbitalperiod[i];
+                s.mesh.position.x = orbitRadius[i] * Math.cos(s.angle);
+                s.mesh.position.z = orbitRadius[i] * Math.sin(s.angle);
+                s.mesh.rotation.y -= delta / (2 * Math.PI * rotationperiod[i]);
+                sun.rotation.y -= delta / (2 * Math.PI * 27);
+                //sun.rotation.y = sun.rotation.y - (Math.PI / (factor*29));
+            }
+        });
 
-    // Create the sphere
-        var sphere = BABYLON.MeshBuilder.CreateSphere("sphere", {diameter: 2}, scene);
+        // Run the render loop
+        engine.runRenderLoop(function() {
+            scene.render();
+        });
+        
+        // Adjust canvas resize
+        window.addEventListener("resize", function () {
+            engine.resize();
+        });    
 
-    // Create a material
-       var material = new BABYLON.StandardMaterial("sphereMaterial", scene);
 
-    // Create the texture from a JPG image (use your own image URL or path)
-        material.diffuseTexture = new BABYLON.Texture("./2k_mars.jpg", scene);
-
-    // Assign the material to the sphere
-        sphere.material = material;
+            
             
     // Create a SkyBox containing Milky Way
         photoDome = new BABYLON.PhotoDome("milkyway", "./eso0932a.jpg", {}, scene);
